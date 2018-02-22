@@ -4,6 +4,7 @@ import (
  	flag "github.com/ogier/pflag"
  	"fmt"
 	"os"
+	"strings"
 )
 
 var (
@@ -15,6 +16,7 @@ func cipher(text string, shift int, direction int) string {
 	internalShift, offset := rune(shift), rune(26)
 
 	runes := []rune(text)
+
 	for index, character := range runes {
 		switch direction {
 		case -1:
@@ -62,21 +64,29 @@ func main() {
  	}
 
  	if flag.NFlag() > 0 {
- 		if os.Args[1] == "-e" {
-			encoded := encode(plainText, shift)
-			fmt.Printf("Encrypted string: %s\n", encoded)
-		}
-		if os.Args[1] == "-d" {
-			decoded := decode(plainText, shift)
-			fmt.Printf("Decrypted string: %s\n", decoded)
+		var sentence []string
+		if len(plainText) != 0 {
+			if os.Args[1] == "-e" {
+				for _, arg := range os.Args [2:] {
+					encoded := encode(arg, shift)
+					sentence = append(sentence, encoded)
+				}
+				fmt.Printf("Encrypted string: %s\n", strings.Join(sentence[:], " "))
+			}
 
+			if os.Args[1] == "-d" {
+				for _, arg := range os.Args [2:] {
+					decoded := decode(arg, shift)
+					sentence = append(sentence, decoded)
+				}
+				fmt.Printf("Decrypted string: %s\n", strings.Join(sentence[:], " "))
+			}
 		}
 	}
-
  }
 
  func init() {
- 	flag.StringVarP(&plainText, "encrypt", "e", "", "encrypts a string")
+ 	 flag.StringVarP(&plainText, "encrypt", "e", "", "encrypts a string")
 	 flag.StringVarP(&plainText, "decrypt", "d", "", "decrypts a string")
 	 flag.IntVar(&shift, "shift", 3, "sets the cipher shift")
  }
